@@ -9,6 +9,7 @@ LOCALE_MAP = {
 def explain(school, user):
     """Generate a human-readable explanation for why a school was recommended."""
     reasons = []
+    concerns = []
 
     # Budget
     tuition = school.get("tuition_in")
@@ -20,8 +21,10 @@ def explain(school, user):
             reasons.append(f"well within your budget at ${tuition:,} tuition (${savings:,.0f} under your limit)")
         elif pct >= 20:
             reasons.append(f"fits your budget at ${tuition:,} tuition")
-        else:
+        elif pct >= 5:
             reasons.append(f"within your budget at ${tuition:,} tuition")
+        else:
+            concerns.append(f"cuts it close on budget at ${tuition:,} tuition")
 
     # Distance
     dist = school.get("distance")
@@ -33,7 +36,7 @@ def explain(school, user):
         elif dist < 300:
             reasons.append(f"a manageable {dist:.0f} miles away")
         else:
-            reasons.append(f"{dist:.0f} miles away")
+            concerns.append(f"{dist:.0f} miles from home")
 
     # Admission rate
     rate = school.get("admission_rate")
@@ -43,9 +46,9 @@ def explain(school, user):
         elif rate >= 0.4:
             reasons.append(f"moderately selective ({rate * 100:.0f}% acceptance rate)")
         elif rate >= 0.2:
-            reasons.append(f"selective ({rate * 100:.0f}% acceptance rate)")
+            concerns.append(f"selective ({rate * 100:.0f}% acceptance rate)")
         else:
-            reasons.append(f"highly selective ({rate * 100:.0f}% acceptance rate)")
+            concerns.append(f"highly selective ({rate * 100:.0f}% acceptance rate)")
 
     # Size
     size = school.get("size")
@@ -63,8 +66,23 @@ def explain(school, user):
     if setting:
         reasons.append(f"located in a {setting}")
 
-    # Build sentence
-    if not reasons:
-        return "Meets your search criteria."
+    # Build explanation based on score
+    score = school.get("score", 0)
 
-    return "This school is a good match: " + ", ".join(reasons) + "."
+    if score >= 0.7:
+        tone = "Strong match"
+    elif score >= 0.4:
+        tone = "Decent match"
+    else:
+        tone = "Weak match"
+
+    parts = []
+    if reasons:
+        parts.append(", ".join(reasons))
+    if concerns:
+        parts.append("however " + ", and ".join(concerns))
+
+    if not parts:
+        return f"{tone} — meets your basic search criteria."
+
+    return f"{tone} — {parts[0]}" + (f"; {parts[1]}" if len(parts) > 1 else "") + "."
