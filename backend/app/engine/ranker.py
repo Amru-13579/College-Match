@@ -1,4 +1,5 @@
 import math
+from backend.app.engine.explain import explain
 
 
 def distance(lat1, lon1, lat2, lon2):
@@ -20,7 +21,6 @@ def score_school(school, user):
 
 
 def rank_schools(schools, user):
-    # Compute distances
     for school in schools:
         if school["lat"] and school["lon"]:
             school["distance"] = distance(
@@ -29,7 +29,6 @@ def rank_schools(schools, user):
         else:
             school["distance"] = None
 
-    # Hard filter: score to sort
     filtered = []
     for s in schools:
         if (
@@ -39,10 +38,7 @@ def rank_schools(schools, user):
             and s["distance"] <= user["max_distance"]
         ):
             s["score"] = score_school(s, user)
-            s["explanation"] = (
-                f"${s['tuition_in']:,} tuition • "
-                f"{round(s['distance'], 1)} miles away"
-            )
+            s["explanation"] = explain(s, user)
             filtered.append(s)
 
     return sorted(filtered, key=lambda x: x["score"], reverse=True)
