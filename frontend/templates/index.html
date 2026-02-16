@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CollegeMatch</title>
+</head>
+<body>
+    <h1>CollegeMatch</h1>
+
+    <form method="POST">
+        Max Budget: <input type="number" name="max_budget"><br><br>
+        Max Distance (miles): <input type="number" name="max_distance"><br><br>
+        Your Latitude: <input type="text" name="lat"><br><br>
+        Your Longitude: <input type="text" name="lon"><br><br>
+        <button type="submit">Find Colleges</button>
+    </form>
+
+    <hr>
+
+    {% for school in results %}
+        <p>
+            <strong>{{ school.name }}</strong><br>
+            Tuition: ${{ school.tuition }}<br>
+            Distance: {{ school.distance | round(1) }} miles<br>
+            Score: {{ school.score | round(3) }}
+        </p>
+        <hr>
+    {% endfor %}
+
+</body>
+</html>

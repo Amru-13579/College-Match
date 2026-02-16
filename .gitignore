@@ -1,0 +1,16 @@
+# Ignore environment files
+**/.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# IDE files
+.vscode/
+*.swp
+__pycache__/
+*.pyc
+__pycache__/
+*.pyc
+backend/.env
+backend/.env
