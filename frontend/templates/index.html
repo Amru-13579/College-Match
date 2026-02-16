@@ -7,14 +7,23 @@
     <h1>CollegeMatch</h1>
 
     <form method="POST">
-        Max Budget: <input type="number" name="max_budget"><br><br>
-        Max Distance (miles): <input type="number" name="max_distance"><br><br>
-        Your Latitude: <input type="text" name="lat"><br><br>
-        Your Longitude: <input type="text" name="lon"><br><br>
+        Location (zip code or city, state):
+        <input type="text" name="location" placeholder="e.g. 92697 or Irvine, CA" required><br><br>
+
+        Max Budget ($):
+        <input type="number" name="max_budget" placeholder="e.g. 25000" required><br><br>
+
+        Max Distance (miles):
+        <input type="number" name="max_distance" placeholder="e.g. 500" required><br><br>
+
         <button type="submit">Find Colleges</button>
     </form>
 
     <hr>
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
 
     {% for school in results %}
         <p>
