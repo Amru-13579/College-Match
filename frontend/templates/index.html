@@ -20,19 +20,22 @@
                 <div class="form-group">
                     <label for="location">Location</label>
                     <input type="text" id="location" name="location"
-                           placeholder="Zip code or city, state" required>
+                           placeholder="Zip code or city, state"
+                           value="{{ form.get('location', '') }}" required>
                 </div>
 
                 <div class="form-group">
                     <label for="max_budget">Max annual tuition ($)</label>
                     <input type="number" id="max_budget" name="max_budget"
-                           placeholder="25000" required min="0">
+                           placeholder="25000"
+                           value="{{ form.get('max_budget', '') }}" required min="0">
                 </div>
 
                 <div class="form-group">
                     <label for="max_distance">Max distance (miles)</label>
                     <input type="number" id="max_distance" name="max_distance"
-                           placeholder="500" required min="0">
+                           placeholder="500"
+                           value="{{ form.get('max_distance', '') }}" required min="0">
                 </div>
 
                 <button type="submit">Search</button>
