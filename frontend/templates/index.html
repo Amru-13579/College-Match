@@ -1,39 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CollegeMatch</title>
+    <title>CollegeMatch - Find Your Perfect School</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>CollegeMatch</h1>
-
-    <form method="POST">
-        Location (zip code or city, state):
-        <input type="text" name="location" placeholder="e.g. 92697 or Irvine, CA" required><br><br>
-
-        Max Budget ($):
-        <input type="number" name="max_budget" placeholder="e.g. 25000" required><br><br>
-
-        Max Distance (miles):
-        <input type="number" name="max_distance" placeholder="e.g. 500" required><br><br>
-
-        <button type="submit">Find Colleges</button>
-    </form>
-
-    <hr>
-
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
-
-    {% for school in results %}
-        <p>
-            <strong>{{ school.name }}</strong> — {{ school.city }}, {{ school.state }}<br>
-            Tuition: ${{ school.tuition_in }}<br>
-            Distance: {{ school.distance | round(1) }} miles<br>
-            Score: {{ school.score | round(3) }}<br>
-            {{ school.explanation }}
-        </p>
-        <hr>
-    {% endfor %}
+    <div class="home-container">
+        <div class="form-container">
+            <div class="emoji">🎓</div>
+            <h1>CollegeMatch</h1>
+            <p class="subtitle">Find your perfect college match</p>
+            
+            {% if error %}
+            <div class="error">{{ error }}</div>
+            {% endif %}
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label for="location">📍 Your Location</label>
+                    <input type="text" id="location" name="location" 
+                           placeholder="e.g., 92697 or Irvine, CA" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="max_budget">💰 Maximum Budget (per year)</label>
+                    <input type="number" id="max_budget" name="max_budget" 
+                           placeholder="e.g., 25000" required min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="max_distance">🚗 Maximum Distance (miles)</label>
+                    <input type="number" id="max_distance" name="max_distance" 
+                           placeholder="e.g., 500" required min="0">
+                </div>
+                
+                <button type="submit">Find My Colleges ✨</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

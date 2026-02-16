@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your College Matches - CollegeMatch</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="results-container">
+        <div class="header">
+            <h1>🎉 Your Top Matches</h1>
+            <p>We found {{ schools|length }} colleges that match your criteria</p>
+        </div>
+        
+        <a href="{{ url_for('home') }}" class="back-button">← New Search</a>
+        
+        {% if schools %}
+            {% for school in schools %}
+            <div class="school-card">
+                <div class="rank-badge">#{{ loop.index }}</div>
+                
+                <h2 class="school-name">{{ school.name }}</h2>
+                <p class="school-location">📍 {{ school.city }}, {{ school.state }}</p>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">💵 Tuition</div>
+                        <div class="info-value" data-tuition="{{ school.get('tuition', school.get('tuition_in', 0)) }}">
+                            $0
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">📍 Distance</div>
+                        <div class="info-value">
+                            {{ school.distance|round(1) }} mi
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">⭐ Match Score</div>
+                        <div class="info-value">
+                            {{ (school.score * 100)|round(0)|int }}%
+                        </div>
+                    </div>
+                </div>
+                
+                {% if school.explanation %}
+                <p class="explanation">{{ school.explanation }}</p>
+                {% endif %}
+                
+                <div class="score-bar">
+                    <div class="score-fill score-{{ loop.index }}"></div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <style>
+                {% for school in schools %}
+                .score-{{ loop.index }} {
+                    width: {{ (school.score * 100) }}%;
+                }
+                {% endfor %}
+            </style>
+        {% else %}
+            <div class="no-results">
+                <div class="emoji">😔</div>
+                <h2>No colleges found matching your criteria</h2>
+                <p>Try adjusting your search:</p>
+                <ul style="text-align: left; display: inline-block; margin-top: 20px;">
+                    <li>Increase your maximum budget</li>
+                    <li>Expand your search distance</li>
+                    <li>Try a different location</li>
+                </ul>
+                <br><br>
+                <a href="{{ url_for('home') }}" class="back-button" style="display: inline-block; margin-top: 20px;">← Try Again</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        document.querySelectorAll('[data-tuition]').forEach(el => {
+            const tuition = parseInt(el.dataset.tuition);
+            if (tuition > 0) {
+                el.textContent = '$' + tuition.toLocaleString();
+            } else {
+                el.textContent = 'N/A';
+            }
+        });
+    </script>
+</body>
+</html>
