@@ -18,13 +18,13 @@
 
     {% for school in results %}
         <p>
-            <strong>{{ school.name }}</strong><br>
-            Tuition: ${{ school.tuition }}<br>
+            <strong>{{ school.name }}</strong> — {{ school.city }}, {{ school.state }}<br>
+            Tuition: ${{ school.tuition_in }}<br>
             Distance: {{ school.distance | round(1) }} miles<br>
-            Score: {{ school.score | round(3) }}
+            Score: {{ school.score | round(3) }}<br>
+            {{ school.explanation }}
         </p>
         <hr>
     {% endfor %}
-
 </body>
 </html>

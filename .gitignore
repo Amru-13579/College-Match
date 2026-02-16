@@ -14,3 +14,4 @@ __pycache__/
 *.pyc
 backend/.env
 backend/.env
+backend/app/data/schools.json
