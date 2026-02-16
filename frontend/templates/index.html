@@ -16,7 +16,7 @@
             <div class="error">{{ error }}</div>
             {% endif %}
 
-            <form method="POST">
+            <form method="POST" id="search-form">
                 <div class="form-group">
                     <label for="location">Location</label>
                     <input type="text" id="location" name="location"
@@ -38,9 +38,19 @@
                            value="{{ form.get('max_distance', '') }}" required min="0">
                 </div>
 
-                <button type="submit">Search</button>
+                <div class="button-row">
+                    <button type="submit">Search</button>
+                    <a href="#" class="clear-link" id="clear-btn">Clear</a>
+                </div>
             </form>
         </div>
     </div>
+
+    <script>
+        document.getElementById('clear-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('#search-form input').forEach(i => i.value = '');
+        });
+    </script>
 </body>
 </html>
