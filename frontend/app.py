@@ -18,7 +18,7 @@ def home():
 
         if not coords:
             error = f"Could not find location: '{location}'"
-            return render_template("index.html", error=error)
+            return render_template("index.html", error=error, form=request.form)
 
         lat, lon = coords
         session["user"] = {
@@ -27,9 +27,14 @@ def home():
             "max_budget": float(request.form["max_budget"]),
             "max_distance": float(request.form["max_distance"]),
         }
+        session["form"] = {
+            "location": location,
+            "max_budget": request.form["max_budget"],
+            "max_distance": request.form["max_distance"],
+        }
         return redirect(url_for("results"))
 
-    return render_template("index.html", error=error)
+    return render_template("index.html", error=error, form=session.get("form", {}))
 
 
 @app.route("/results")

@@ -16,28 +16,41 @@
             <div class="error">{{ error }}</div>
             {% endif %}
 
-            <form method="POST">
+            <form method="POST" id="search-form">
                 <div class="form-group">
                     <label for="location">Location</label>
                     <input type="text" id="location" name="location"
-                           placeholder="Zip code or city, state" required>
+                           placeholder="Zip code or city, state"
+                           value="{{ form.get('location', '') }}" required>
                 </div>
 
                 <div class="form-group">
                     <label for="max_budget">Max annual tuition ($)</label>
                     <input type="number" id="max_budget" name="max_budget"
-                           placeholder="25000" required min="0">
+                           placeholder="25000"
+                           value="{{ form.get('max_budget', '') }}" required min="0">
                 </div>
 
                 <div class="form-group">
                     <label for="max_distance">Max distance (miles)</label>
                     <input type="number" id="max_distance" name="max_distance"
-                           placeholder="500" required min="0">
+                           placeholder="500"
+                           value="{{ form.get('max_distance', '') }}" required min="0">
                 </div>
 
-                <button type="submit">Search</button>
+                <div class="button-row">
+                    <button type="submit">Search</button>
+                    <a href="#" class="clear-link" id="clear-btn">Clear</a>
+                </div>
             </form>
         </div>
     </div>
+
+    <script>
+        document.getElementById('clear-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('#search-form input').forEach(i => i.value = '');
+        });
+    </script>
 </body>
 </html>
