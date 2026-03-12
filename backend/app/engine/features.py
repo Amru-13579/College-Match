@@ -31,7 +31,7 @@ def clamp01(x: float) -> float:
     return max(0.0, min(1.0, x))
 
 
-def compute_score(school: dict, user: dict, w_tuition=0.6, w_distance=0.4):
+def compute_base_score(school: dict, user: dict, w_tuition=0.6, w_distance=0.4):
     """
     Weighted score in [0,1]. Returns None if missing inputs.
     Need to have the user's school['tuition_in'], school['distance'], user['max_budget'], user['max_distance'].
@@ -46,10 +46,48 @@ def compute_score(school: dict, user: dict, w_tuition=0.6, w_distance=0.4):
     if max_budget <= 0 or max_distance <= 0:
         return None
 
-#normalize tuition and distance to [0,1] where 1 is best, then do weighted average
+    # Normalize tuition and distance to [0,1] where 1 is best.
     tuition_score = 1.0 - clamp01(tuition / max_budget)
     distance_score = 1.0 - clamp01(dist / max_distance)
     return (w_tuition * tuition_score) + (w_distance * distance_score)
+
+
+def compute_climate_score(climate: dict, preference: str):
+    if not climate or not preference or preference == "any":
+        return None
+
+    avg_temp_f = climate.get("avg_temp_f")
+    annual_precip_in = climate.get("annual_precip_in")
+    if avg_temp_f is None or annual_precip_in is None:
+        return None
+
+    if preference == "warm":
+        return clamp01((avg_temp_f - 45) / 30)
+    if preference == "cool":
+        return clamp01((75 - avg_temp_f) / 30)
+    if preference == "mild":
+        return 1.0 - clamp01(abs(avg_temp_f - 62) / 15)
+    if preference == "dry":
+        return 1.0 - clamp01(annual_precip_in / 60)
+    if preference == "rainy":
+        return clamp01(annual_precip_in / 60)
+
+    return None
+
+
+def compute_score(school: dict, user: dict):
+    base_score = compute_base_score(school, user)
+    if base_score is None:
+        return None
+
+    climate_pref = user.get("climate_preference", "any")
+    climate_score = compute_climate_score(school.get("climate"), climate_pref)
+    if climate_pref == "any" or climate_score is None:
+        return base_score
+
+    return (0.45 * (1.0 - clamp01(school["tuition_in"] / user["max_budget"]))) + (
+        0.30 * (1.0 - clamp01(school["distance"] / user["max_distance"]))
+    ) + (0.25 * climate_score)
 
 
 def build_explanation(school: dict):

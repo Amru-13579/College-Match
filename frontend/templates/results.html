@@ -13,6 +13,9 @@
         <div class="results-header">
             <h1>Your Results</h1>
             <p>{{ schools|length }} colleges match your criteria</p>
+            {% if user.climate_preference and user.climate_preference != 'any' %}
+            <p>Climate preference: {{ user.climate_preference|capitalize }}</p>
+            {% endif %}
         </div>
 
         {% if schools %}
@@ -30,7 +33,16 @@
                     <div class="info-item"><span>Tuition:</span> ${{ "{:,}".format(school.tuition_in | int) }}</div>
                     <div class="info-item"><span>Distance:</span> {{ school.distance | round(1) }} mi</div>
                     <div class="info-item"><span>Match:</span> {{ (school.score * 100) | round(0) | int }}%</div>
+                    {% if school.climate %}
+                    <div class="info-item"><span>Climate:</span> {{ school.climate.label }}</div>
+                    {% endif %}
                 </div>
+
+                {% if school.climate %}
+                <div class="climate-meta">
+                    Avg temp {{ school.climate.avg_temp_f }}F • Rain {{ school.climate.annual_precip_in }} in/year
+                </div>
+                {% endif %}
 
                 {% if school.explanation %}
                 <div class="explanation">{{ school.explanation }}</div>

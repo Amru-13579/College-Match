@@ -21,16 +21,19 @@ def home():
             return render_template("index.html", error=error, form=request.form)
 
         lat, lon = coords
+        climate_preference = request.form.get("climate_preference", "any")
         session["user"] = {
             "lat": lat,
             "lon": lon,
             "max_budget": float(request.form["max_budget"]),
             "max_distance": float(request.form["max_distance"]),
+            "climate_preference": climate_preference,
         }
         session["form"] = {
             "location": location,
             "max_budget": request.form["max_budget"],
             "max_distance": request.form["max_distance"],
+            "climate_preference": climate_preference,
         }
         return redirect(url_for("results"))
 

@@ -66,6 +66,28 @@ def explain(school, user):
     if setting:
         reasons.append(f"located in a {setting}")
 
+    # Climate
+    climate_pref = user.get("climate_preference", "any")
+    climate = school.get("climate")
+    if climate_pref != "any" and climate:
+        avg_temp = climate.get("avg_temp_f")
+        annual_precip = climate.get("annual_precip_in")
+        if climate_pref == "warm":
+            target = reasons if avg_temp >= 65 else concerns
+            target.append(f"has a warmer climate around {avg_temp:.0f}F on average")
+        elif climate_pref == "cool":
+            target = reasons if avg_temp <= 58 else concerns
+            target.append(f"has a cooler climate around {avg_temp:.0f}F on average")
+        elif climate_pref == "mild":
+            target = reasons if 55 <= avg_temp <= 68 else concerns
+            target.append(f"stays fairly mild at about {avg_temp:.0f}F on average")
+        elif climate_pref == "dry":
+            target = reasons if annual_precip <= 25 else concerns
+            target.append(f"gets about {annual_precip:.0f} inches of rain a year")
+        elif climate_pref == "rainy":
+            target = reasons if annual_precip >= 40 else concerns
+            target.append(f"gets about {annual_precip:.0f} inches of rain a year")
+
     # Build explanation based on score
     score = school.get("score", 0)
 

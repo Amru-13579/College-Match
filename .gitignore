@@ -1,17 +1,16 @@
 # Ignore environment files
 **/.env
+backend/.env
 
 # Python cache
 __pycache__/
 *.pyc
+.venv/
 
 # IDE files
 .vscode/
 *.swp
-__pycache__/
-*.pyc
-__pycache__/
-*.pyc
-backend/.env
-backend/.env
+
+# Generated data
 backend/app/data/schools.json
+backend/app/data/climate_cache.json

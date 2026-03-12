@@ -38,6 +38,19 @@
                            value="{{ form.get('max_distance', '') }}" required min="0">
                 </div>
 
+                <div class="form-group">
+                    <label for="climate_preference">Climate preference</label>
+                    {% set selected_climate = form.get('climate_preference', 'any') %}
+                    <select id="climate_preference" name="climate_preference">
+                        <option value="any" {% if selected_climate == 'any' %}selected{% endif %}>No preference</option>
+                        <option value="warm" {% if selected_climate == 'warm' %}selected{% endif %}>Warm</option>
+                        <option value="mild" {% if selected_climate == 'mild' %}selected{% endif %}>Mild</option>
+                        <option value="cool" {% if selected_climate == 'cool' %}selected{% endif %}>Cool</option>
+                        <option value="dry" {% if selected_climate == 'dry' %}selected{% endif %}>Dry</option>
+                        <option value="rainy" {% if selected_climate == 'rainy' %}selected{% endif %}>Rainy</option>
+                    </select>
+                </div>
+
                 <div class="button-row">
                     <button type="submit">Search</button>
                     <a href="#" class="clear-link" id="clear-btn">Clear</a>
@@ -50,6 +63,7 @@
         document.getElementById('clear-btn').addEventListener('click', function(e) {
             e.preventDefault();
             document.querySelectorAll('#search-form input').forEach(i => i.value = '');
+            document.getElementById('climate_preference').value = 'any';
         });
     </script>
 </body>
