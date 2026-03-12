@@ -1,70 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CollegeMatch</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CollegeMatch</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+<style>
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background:#f5f7fb;
+    margin:0;
+}
+
+.home-container{
+    display:flex;
+    justify-content:center;
+    padding:60px 20px;
+}
+
+.form-container{
+    background:white;
+    padding:40px;
+    width:500px;
+    border-radius:10px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+h1{
+    margin-bottom:5px;
+}
+
+.subtitle{
+    color:#666;
+    margin-bottom:30px;
+}
+
+.form-section{
+    margin-bottom:25px;
+}
+
+.form-group{
+    margin-bottom:18px;
+}
+
+label{
+    font-weight:600;
+    display:block;
+    margin-bottom:6px;
+}
+
+input, select{
+    width:100%;
+    padding:10px;
+    border:1px solid #ddd;
+    border-radius:6px;
+}
+
+.range-row{
+    display:flex;
+    gap:10px;
+}
+
+.range-value{
+    font-size:14px;
+    color:#555;
+    margin-top:4px;
+}
+
+input[type=range]{
+    width:100%;
+}
+
+button{
+    background:#2c4cff;
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    background:#1f38c8;
+}
+
+.button-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.clear-link{
+    color:#777;
+    text-decoration:none;
+}
+
+.clear-link:hover{
+    text-decoration:underline;
+}
+</style>
+
 </head>
 <body>
-    <div class="home-container">
-        <div class="form-container">
-            <h1>CollegeMatch</h1>
-            <p class="subtitle">Find colleges that fit your budget and location.</p>
 
-            {% if error %}
-            <div class="error">{{ error }}</div>
-            {% endif %}
+<div class="home-container">
+<div class="form-container">
 
-            <form method="POST" id="search-form">
-                <div class="form-group">
-                    <label for="location">Location</label>
-                    <input type="text" id="location" name="location"
-                           placeholder="Zip code or city, state"
-                           value="{{ form.get('location', '') }}" required>
-                </div>
+<h1>CollegeMatch</h1>
+<p class="subtitle">Find colleges that fit your preferences.</p>
 
-                <div class="form-group">
-                    <label for="max_budget">Max annual tuition ($)</label>
-                    <input type="number" id="max_budget" name="max_budget"
-                           placeholder="25000"
-                           value="{{ form.get('max_budget', '') }}" required min="0">
-                </div>
+<form method="POST" id="search-form">
 
-                <div class="form-group">
-                    <label for="max_distance">Max distance (miles)</label>
-                    <input type="number" id="max_distance" name="max_distance"
-                           placeholder="500"
-                           value="{{ form.get('max_distance', '') }}" required min="0">
-                </div>
+<!-- LOCATION -->
+<div class="form-section">
+<div class="form-group">
+<label for="location">Location</label>
+<input type="text" id="location" name="location"
+placeholder="Zip code or city, state"
+value="{{ form.get('location','') }}" required>
+</div>
+</div>
 
-                <div class="form-group">
-                    <label for="climate_preference">Climate preference</label>
-                    {% set selected_climate = form.get('climate_preference', 'any') %}
-                    <select id="climate_preference" name="climate_preference">
-                        <option value="any" {% if selected_climate == 'any' %}selected{% endif %}>No preference</option>
-                        <option value="warm" {% if selected_climate == 'warm' %}selected{% endif %}>Warm</option>
-                        <option value="mild" {% if selected_climate == 'mild' %}selected{% endif %}>Mild</option>
-                        <option value="cool" {% if selected_climate == 'cool' %}selected{% endif %}>Cool</option>
-                        <option value="dry" {% if selected_climate == 'dry' %}selected{% endif %}>Dry</option>
-                        <option value="rainy" {% if selected_climate == 'rainy' %}selected{% endif %}>Rainy</option>
-                    </select>
-                </div>
+<!-- COST + DISTANCE -->
+<div class="form-section">
 
-                <div class="button-row">
-                    <button type="submit">Search</button>
-                    <a href="#" class="clear-link" id="clear-btn">Clear</a>
-                </div>
-            </form>
-        </div>
-    </div>
+<div class="form-group">
+<label for="max_budget">Max annual tuition ($)</label>
+<input type="number" id="max_budget" name="max_budget"
+placeholder="25000"
+value="{{ form.get('max_budget','') }}" required min="0">
+</div>
 
-    <script>
-        document.getElementById('clear-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelectorAll('#search-form input').forEach(i => i.value = '');
-            document.getElementById('climate_preference').value = 'any';
-        });
-    </script>
+<div class="form-group">
+<label for="max_distance">Max distance (miles)</label>
+<input type="number" id="max_distance" name="max_distance"
+placeholder="500"
+value="{{ form.get('max_distance','') }}" required min="0">
+</div>
+
+</div>
+
+<!-- SCHOOL SIZE -->
+<div class="form-section">
+
+<div class="form-group">
+<label>School size</label>
+<div class="range-row">
+<input type="number" name="min_size" placeholder="Min students"
+value="{{ form.get('min_size','') }}">
+<input type="number" name="max_size" placeholder="Max students"
+value="{{ form.get('max_size','') }}">
+</div>
+</div>
+
+<div class="form-group">
+<label for="min_admission_rate">Minimum admission rate (%)</label>
+<input type="number" id="min_admission_rate"
+name="min_admission_rate"
+placeholder="40"
+value="{{ form.get('min_admission_rate','') }}"
+min="0" max="100">
+</div>
+
+</div>
+
+<!-- TEST SCORES -->
+<div class="form-section">
+
+<div class="form-group">
+<label for="sat_range">Minimum SAT Score</label>
+
+<input type="range"
+id="sat_range"
+name="min_sat"
+min="400"
+max="1600"
+step="10"
+value="{{ form.get('min_sat',1000) }}">
+
+<div class="range-value">
+<span id="sat_value">1000</span>
+</div>
+</div>
+
+<div class="form-group">
+<label for="act_range">Minimum ACT Score</label>
+
+<input type="range"
+id="act_range"
+name="min_act"
+min="1"
+max="36"
+step="1"
+value="{{ form.get('min_act',20) }}">
+
+<div class="range-value">
+<span id="act_value">20</span>
+</div>
+</div>
+
+</div>
+
+<!-- CLIMATE -->
+<div class="form-section">
+
+<div class="form-group">
+<label for="climate_preference">Climate preference</label>
+
+{% set selected_climate = form.get('climate_preference','any') %}
+
+<select id="climate_preference" name="climate_preference">
+
+<option value="any" {% if selected_climate=='any' %}selected{% endif %}>
+No preference
+</option>
+
+<option value="warm" {% if selected_climate=='warm' %}selected{% endif %}>
+Warm
+</option>
+
+<option value="mild" {% if selected_climate=='mild' %}selected{% endif %}>
+Mild
+</option>
+
+<option value="cool" {% if selected_climate=='cool' %}selected{% endif %}>
+Cool
+</option>
+
+<option value="dry" {% if selected_climate=='dry' %}selected{% endif %}>
+Dry
+</option>
+
+<option value="rainy" {% if selected_climate=='rainy' %}selected{% endif %}>
+Rainy
+</option>
+
+</select>
+</div>
+
+</div>
+
+<div class="button-row">
+<button type="submit">Search</button>
+<a href="#" class="clear-link" id="clear-btn">Clear</a>
+</div>
+
+</form>
+
+</div>
+</div>
+
+<script>
+
+const satSlider = document.getElementById("sat_range");
+const actSlider = document.getElementById("act_range");
+
+const satValue = document.getElementById("sat_value");
+const actValue = document.getElementById("act_value");
+
+satValue.textContent = satSlider.value;
+actValue.textContent = actSlider.value;
+
+satSlider.oninput = () => satValue.textContent = satSlider.value;
+actSlider.oninput = () => actValue.textContent = actSlider.value;
+
+document.getElementById('clear-btn').addEventListener('click', function(e) {
+e.preventDefault();
+document.querySelectorAll('#search-form input').forEach(i => {
+if(i.type !== "range") i.value = '';
+});
+satSlider.value = 1000;
+actSlider.value = 20;
+satValue.textContent = 1000;
+actValue.textContent = 20;
+document.getElementById('climate_preference').value = 'any';
+});
+
+</script>
+
 </body>
 </html>

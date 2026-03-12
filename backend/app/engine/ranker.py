@@ -16,6 +16,20 @@ def rank_schools(schools, user):
             and s.get("distance") is not None
             and s["tuition_in"] <= user["max_budget"]
             and s["distance"] <= user["max_distance"]
+
+            # school size filter
+            and (user.get("min_size") is None or s.get("size") >= user["min_size"])
+            and (user.get("max_size") is None or s.get("size") <= user["max_size"])
+
+            # admission rate filter
+            and (user.get("min_admission_rate") is None or s.get("admission_rate") >= user["min_admission_rate"])
+            and (user.get("max_admission_rate") is None or s.get("admission_rate") <= user["max_admission_rate"])
+
+            # SAT filter
+            and (user.get("min_sat") is None or s.get("sat_avg") >= user["min_sat"])
+
+            # ACT filter
+            and (user.get("min_act") is None or s.get("act_mid") >= user["min_act"])
         ):
             s["base_score"] = compute_base_score(s, user)
             if s["base_score"] is None:
