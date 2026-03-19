@@ -6,6 +6,51 @@ LOCALE_MAP = {
 }
 
 
+def _format_climate_phrase(climate):
+    avg_temp = climate.get("avg_temp_f")
+    annual_precip = climate.get("annual_precip_in")
+    label = climate.get("label")
+
+    details = []
+    if label:
+        details.append(label)
+    if avg_temp is not None:
+        details.append(f"around {avg_temp:.0f}F on average")
+    if annual_precip is not None:
+        details.append(f"about {annual_precip:.0f} inches of rain a year")
+
+    if not details:
+        return None
+
+    if len(details) == 1:
+        return details[0]
+
+    return ", ".join(details[:-1]) + f", and {details[-1]}"
+
+
+def _climate_alignment(climate, preference):
+    if not climate or preference == "any":
+        return None
+
+    avg_temp = climate.get("avg_temp_f")
+    annual_precip = climate.get("annual_precip_in")
+    if avg_temp is None or annual_precip is None:
+        return None
+
+    if preference == "warm":
+        return avg_temp >= 65
+    if preference == "cool":
+        return avg_temp <= 58
+    if preference == "mild":
+        return 55 <= avg_temp <= 68
+    if preference == "dry":
+        return annual_precip <= 25
+    if preference == "rainy":
+        return annual_precip >= 40
+
+    return None
+
+
 def explain(school, user):
     """Generate a human-readable explanation for why a school was recommended."""
     reasons = []
@@ -69,24 +114,15 @@ def explain(school, user):
     # Climate
     climate_pref = user.get("climate_preference", "any")
     climate = school.get("climate")
-    if climate_pref != "any" and climate:
-        avg_temp = climate.get("avg_temp_f")
-        annual_precip = climate.get("annual_precip_in")
-        if climate_pref == "warm":
-            target = reasons if avg_temp >= 65 else concerns
-            target.append(f"has a warmer climate around {avg_temp:.0f}F on average")
-        elif climate_pref == "cool":
-            target = reasons if avg_temp <= 58 else concerns
-            target.append(f"has a cooler climate around {avg_temp:.0f}F on average")
-        elif climate_pref == "mild":
-            target = reasons if 55 <= avg_temp <= 68 else concerns
-            target.append(f"stays fairly mild at about {avg_temp:.0f}F on average")
-        elif climate_pref == "dry":
-            target = reasons if annual_precip <= 25 else concerns
-            target.append(f"gets about {annual_precip:.0f} inches of rain a year")
-        elif climate_pref == "rainy":
-            target = reasons if annual_precip >= 40 else concerns
-            target.append(f"gets about {annual_precip:.0f} inches of rain a year")
+    climate_phrase = _format_climate_phrase(climate) if climate else None
+    if climate_phrase:
+        alignment = _climate_alignment(climate, climate_pref)
+        if climate_pref == "any" or alignment is None:
+            reasons.append(f"has {climate_phrase} weather")
+        elif alignment:
+            reasons.append(f"matches your weather preference with {climate_phrase} weather")
+        else:
+            concerns.append(f"has {climate_phrase} weather")
 
     # Build explanation based on score
     score = school.get("score", 0)

@@ -18,29 +18,33 @@ def rank_schools(schools, user):
             and s["distance"] <= user["max_distance"]
 
             # school size filter
-            and (user.get("min_size") is None or s.get("size") >= user["min_size"])
-            and (user.get("max_size") is None or s.get("size") <= user["max_size"])
+            and (user.get("min_size") is None or (s.get("size") is not None and s.get("size") >= user["min_size"]))
+            and (user.get("max_size") is None or (s.get("size") is not None and s.get("size") <= user["max_size"]))
 
             # admission rate filter
-            and (user.get("min_admission_rate") is None or s.get("admission_rate") >= user["min_admission_rate"])
-            and (user.get("max_admission_rate") is None or s.get("admission_rate") <= user["max_admission_rate"])
+            and (
+                user.get("min_admission_rate") is None
+                or (s.get("admission_rate") is not None and s.get("admission_rate") >= user["min_admission_rate"])
+            )
+            and (
+                user.get("max_admission_rate") is None
+                or (s.get("admission_rate") is not None and s.get("admission_rate") <= user["max_admission_rate"])
+            )
 
             # SAT filter
-            and (user.get("min_sat") is None or s.get("sat_avg") >= user["min_sat"])
+            and (user.get("min_sat") is None or (s.get("sat_avg") is not None and s.get("sat_avg") >= user["min_sat"]))
 
             # ACT filter
-            and (user.get("min_act") is None or s.get("act_mid") >= user["min_act"])
+            and (user.get("min_act") is None or (s.get("act_mid") is not None and s.get("act_mid") >= user["min_act"]))
         ):
             s["base_score"] = compute_base_score(s, user)
             if s["base_score"] is None:
                 continue
             filtered.append(s)
 
-    climate_pref = user.get("climate_preference", "any")
     candidates = filtered
-    if climate_pref != "any":
-        candidates = sorted(filtered, key=lambda x: x["base_score"], reverse=True)[:CLIMATE_ENRICH_LIMIT]
-        populate_climate_for_schools(candidates)
+    climate_candidates = sorted(filtered, key=lambda x: x["base_score"], reverse=True)[:CLIMATE_ENRICH_LIMIT]
+    populate_climate_for_schools(climate_candidates)
 
     for school in candidates:
         school["score"] = compute_score(school, user)
