@@ -1,5 +1,6 @@
 from backend.app.clients.climate import populate_climate_for_schools
-from backend.app.engine.features import compute_base_score, compute_distance, compute_score
+from backend.app.data.majors import school_offers_major
+from backend.app.engine.features import compute_base_score, compute_distance, compute_score, meets_test_score_requirements
 from backend.app.engine.explain import explain
 
 CLIMATE_ENRICH_LIMIT = 100
@@ -31,11 +32,11 @@ def rank_schools(schools, user):
                 or (s.get("admission_rate") is not None and s.get("admission_rate") <= user["max_admission_rate"])
             )
 
-            # SAT filter
-            and (user.get("min_sat") is None or (s.get("sat_avg") is not None and s.get("sat_avg") >= user["min_sat"]))
+            # standardized test filter
+            and meets_test_score_requirements(s, user)
 
-            # ACT filter
-            and (user.get("min_act") is None or (s.get("act_mid") is not None and s.get("act_mid") >= user["min_act"]))
+            # major filter
+            and school_offers_major(s, user.get("major"))
         ):
             s["base_score"] = compute_base_score(s, user)
             if s["base_score"] is None:

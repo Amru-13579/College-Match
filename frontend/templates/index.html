@@ -146,6 +146,16 @@ value="{{ form.get('max_distance','') }}" required min="0">
 <div class="form-section">
 
 <div class="form-group">
+<label for="major">Major or field of study</label>
+<div class="major-search">
+<input type="text" id="major" name="major" list="major-options"
+placeholder="Computer Science, Business, Psychology..."
+value="{{ form.get('major','') }}">
+<div id="major-suggestions" class="major-suggestions" hidden></div>
+</div>
+</div>
+
+<div class="form-group">
 <label>School size</label>
 <div class="range-row">
 <input type="number" name="min_size" placeholder="Min students"
@@ -178,10 +188,10 @@ name="min_sat"
 min="400"
 max="1600"
 step="10"
-value="{{ form.get('min_sat',1000) }}">
+value="{{ form.get('min_sat',400) }}">
 
 <div class="range-value">
-<span id="sat_value">1000</span>
+<span id="sat_value">400</span>
 </div>
 </div>
 
@@ -194,10 +204,10 @@ name="min_act"
 min="1"
 max="36"
 step="1"
-value="{{ form.get('min_act',20) }}">
+value="{{ form.get('min_act',1) }}">
 
 <div class="range-value">
-<span id="act_value">20</span>
+<span id="act_value">1</span>
 </div>
 </div>
 
@@ -271,11 +281,121 @@ e.preventDefault();
 document.querySelectorAll('#search-form input').forEach(i => {
 if(i.type !== "range") i.value = '';
 });
-satSlider.value = 1000;
-actSlider.value = 20;
-satValue.textContent = 1000;
-actValue.textContent = 20;
+satSlider.value = 400;
+actSlider.value = 1;
+satValue.textContent = 400;
+actValue.textContent = 1;
 document.getElementById('climate_preference').value = 'any';
+});
+
+const majorInput = document.getElementById('major');
+const majorSuggestions = document.getElementById('major-suggestions');
+const majorOptions = {{ major_options|tojson }};
+let activeMajorIndex = -1;
+let visibleMajorOptions = [];
+
+function closeMajorSuggestions() {
+majorSuggestions.hidden = true;
+majorSuggestions.innerHTML = '';
+activeMajorIndex = -1;
+visibleMajorOptions = [];
+}
+
+function isValidMajorSelection(value) {
+const normalized = value.trim().toLowerCase();
+if(!normalized) return false;
+return majorOptions.some(option => option.toLowerCase() === normalized);
+}
+
+function renderMajorSuggestions(query) {
+const normalized = query.trim().toLowerCase();
+if(!normalized) {
+closeMajorSuggestions();
+return;
+}
+
+visibleMajorOptions = majorOptions
+.filter(option => option.toLowerCase().includes(normalized))
+.slice(0, 8);
+
+if(!visibleMajorOptions.length) {
+closeMajorSuggestions();
+return;
+}
+
+majorSuggestions.innerHTML = '';
+visibleMajorOptions.forEach((option, index) => {
+const item = document.createElement('div');
+item.className = 'major-suggestion';
+item.textContent = option;
+item.setAttribute('role', 'option');
+item.addEventListener('mousedown', (e) => {
+e.preventDefault();
+majorInput.value = option;
+closeMajorSuggestions();
+});
+majorSuggestions.appendChild(item);
+});
+
+majorSuggestions.hidden = false;
+activeMajorIndex = -1;
+}
+
+function updateActiveMajorSuggestion() {
+Array.from(majorSuggestions.children).forEach((child, index) => {
+child.classList.toggle('is-active', index === activeMajorIndex);
+});
+}
+
+majorInput.removeAttribute('list');
+
+majorInput.addEventListener('input', () => {
+renderMajorSuggestions(majorInput.value);
+});
+
+majorInput.addEventListener('focus', () => {
+renderMajorSuggestions(majorInput.value);
+});
+
+majorInput.addEventListener('blur', () => {
+window.setTimeout(() => {
+if(!isValidMajorSelection(majorInput.value)) {
+majorInput.value = '';
+}
+closeMajorSuggestions();
+}, 100);
+});
+
+majorInput.addEventListener('keydown', (e) => {
+if(majorSuggestions.hidden || !visibleMajorOptions.length) return;
+
+if(e.key === 'ArrowDown') {
+e.preventDefault();
+activeMajorIndex = (activeMajorIndex + 1) % visibleMajorOptions.length;
+updateActiveMajorSuggestion();
+}
+
+if(e.key === 'ArrowUp') {
+e.preventDefault();
+activeMajorIndex = (activeMajorIndex - 1 + visibleMajorOptions.length) % visibleMajorOptions.length;
+updateActiveMajorSuggestion();
+}
+
+if(e.key === 'Enter' && activeMajorIndex >= 0) {
+e.preventDefault();
+majorInput.value = visibleMajorOptions[activeMajorIndex];
+closeMajorSuggestions();
+}
+
+if(e.key === 'Escape') {
+closeMajorSuggestions();
+}
+});
+
+document.addEventListener('click', (e) => {
+if(!e.target.closest('.major-search')) {
+closeMajorSuggestions();
+}
 });
 
 </script>

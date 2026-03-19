@@ -3,6 +3,7 @@ import json
 import requests
 from dotenv import load_dotenv
 from backend.app.data.field_map import FIELD_MAP, API_FIELDS
+from backend.app.data.majors import extract_majors, major_field_names
 
 load_dotenv()
 
@@ -16,6 +17,7 @@ def normalize(raw):
     school = {}
     for clean_key, api_key in FIELD_MAP.items():
         school[clean_key] = raw.get(api_key)
+    school["majors"] = extract_majors(raw)
     return school
 
 
@@ -27,7 +29,7 @@ def fetch_all_schools():
     while True:
         params = {
             "api_key": API_KEY,
-            "fields": API_FIELDS,
+            "fields": ",".join([API_FIELDS, *major_field_names()]),
             "per_page": 100,
             "page": page,
         }

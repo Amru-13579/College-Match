@@ -260,6 +260,41 @@ button:hover {
     padding: 12px 0;
 }
 
+.major-search {
+    position: relative;
+}
+
+.major-suggestions {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 20;
+}
+
+.major-suggestions[hidden] {
+    display: none;
+}
+
+.major-suggestion {
+    padding: 10px 12px;
+    color: #1f2937;
+    cursor: pointer;
+    background: #fff;
+}
+
+.major-suggestion:hover,
+.major-suggestion.is-active {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
 .clear-link:hover {
     color: #333;
 }

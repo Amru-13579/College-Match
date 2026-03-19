@@ -27,6 +27,30 @@ def compute_distance(school: dict, user: dict):
     return haversine_miles(user["lat"], user["lon"], school["lat"], school["lon"])
 
 
+def meets_test_score_requirements(school: dict, user: dict) -> bool:
+    """
+    SAT and ACT are alternative standardized-test pathways.
+    If both minimums are set, a school should qualify if it can satisfy either one.
+    """
+    min_sat = user.get("min_sat")
+    min_act = user.get("min_act")
+
+    if min_sat is None and min_act is None:
+        return True
+
+    sat_avg = school.get("sat_avg")
+    act_mid = school.get("act_mid")
+
+    sat_ok = min_sat is not None and sat_avg is not None and sat_avg >= min_sat
+    act_ok = min_act is not None and act_mid is not None and act_mid >= min_act
+
+    if min_sat is not None and min_act is not None:
+        return sat_ok or act_ok
+    if min_sat is not None:
+        return sat_ok
+    return act_ok
+
+
 def clamp01(x: float) -> float:
     return max(0.0, min(1.0, x))
 

@@ -111,6 +111,10 @@ def explain(school, user):
     if setting:
         reasons.append(f"located in a {setting}")
 
+    major = (user.get("major") or "").strip()
+    if major and school.get("majors"):
+        reasons.append(f"offers programs related to {major}")
+
     # Climate
     climate_pref = user.get("climate_preference", "any")
     climate = school.get("climate")
