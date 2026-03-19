@@ -14,13 +14,6 @@ def parse_optional_int(value):
     return int(value) if value else None
 
 
-def parse_optional_slider_min(value, floor):
-    parsed = parse_optional_int(value)
-    if parsed is None or parsed <= floor:
-        return None
-    return parsed
-
-
 def parse_optional_percent(value):
     value = (value or "").strip()
     return float(value) / 100.0 if value else None
@@ -37,7 +30,7 @@ def home():
 
         if not coords:
             error = f"Could not find location: '{location}'"
-            return render_template("index.html", error=error, form=request.form)
+            return render_template("index.html", error=error, form=request.form, major_options=major_options)
 
         lat, lon = coords
         climate_preference = request.form.get("climate_preference", "any")
@@ -51,8 +44,6 @@ def home():
             "max_size": parse_optional_int(request.form.get("max_size")),
             "min_admission_rate": parse_optional_percent(request.form.get("min_admission_rate")),
             "max_admission_rate": None,
-            "min_sat": parse_optional_slider_min(request.form.get("min_sat"), 400),
-            "min_act": parse_optional_slider_min(request.form.get("min_act"), 1),
             "major": major or None,
             "climate_preference": climate_preference,
         }
@@ -63,8 +54,6 @@ def home():
             "min_size": request.form.get("min_size", ""),
             "max_size": request.form.get("max_size", ""),
             "min_admission_rate": request.form.get("min_admission_rate", ""),
-            "min_sat": request.form.get("min_sat", "400"),
-            "min_act": request.form.get("min_act", "1"),
             "major": major,
             "climate_preference": climate_preference,
         }

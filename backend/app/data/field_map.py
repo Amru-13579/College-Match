@@ -13,8 +13,6 @@ FIELD_MAP = {
     "tuition_out":    "latest.cost.tuition.out_of_state",
     "avg_net_price":  "latest.cost.avg_net_price.overall",
     "admission_rate": "latest.admissions.admission_rate.overall",
-    "sat_avg":        "latest.admissions.sat_scores.average.overall",
-    "act_mid":        "latest.admissions.act_scores.midpoint.cumulative",
     "lat":            "location.lat",
     "lon":            "location.lon",
 }

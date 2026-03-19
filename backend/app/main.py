@@ -25,8 +25,7 @@ if __name__ == "__main__":
         "max_size": 40000,
         "min_admission_rate": 0.4,
         "max_admission_rate": None,
-        "min_sat": 1000,
-        "min_act": 20,
+        "major": None,
 
         # climate preference
         "climate_preference": "any"

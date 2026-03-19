@@ -35,7 +35,6 @@ With thousands of options, students usually start with scattered sources like ra
 - Campus setting (urban, suburban, rural)
 - Campus size (small, medium, large)
 - Major or field of study
-- Academic fit via GPA/SAT/ACT (optional)
 
 ---
 
@@ -66,7 +65,6 @@ With thousands of options, students usually start with scattered sources like ra
 
 **College Data Points:**
 - Tuition and financial aid
-- SAT/ACT acceptance ranges
 - Degree offerings
 - Geographic coordinates
 - Campus size and setting

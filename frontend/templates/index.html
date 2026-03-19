@@ -111,6 +111,10 @@ button:hover{
 <h1>CollegeMatch</h1>
 <p class="subtitle">Find colleges that fit your preferences.</p>
 
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
+
 <form method="POST" id="search-form">
 
 <!-- LOCATION -->
@@ -148,7 +152,7 @@ value="{{ form.get('max_distance','') }}" required min="0">
 <div class="form-group">
 <label for="major">Major or field of study</label>
 <div class="major-search">
-<input type="text" id="major" name="major" list="major-options"
+<input type="text" id="major" name="major"
 placeholder="Computer Science, Business, Psychology..."
 value="{{ form.get('major','') }}">
 <div id="major-suggestions" class="major-suggestions" hidden></div>
@@ -172,43 +176,6 @@ name="min_admission_rate"
 placeholder="40"
 value="{{ form.get('min_admission_rate','') }}"
 min="0" max="100">
-</div>
-
-</div>
-
-<!-- TEST SCORES -->
-<div class="form-section">
-
-<div class="form-group">
-<label for="sat_range">Minimum SAT Score</label>
-
-<input type="range"
-id="sat_range"
-name="min_sat"
-min="400"
-max="1600"
-step="10"
-value="{{ form.get('min_sat',400) }}">
-
-<div class="range-value">
-<span id="sat_value">400</span>
-</div>
-</div>
-
-<div class="form-group">
-<label for="act_range">Minimum ACT Score</label>
-
-<input type="range"
-id="act_range"
-name="min_act"
-min="1"
-max="36"
-step="1"
-value="{{ form.get('min_act',1) }}">
-
-<div class="range-value">
-<span id="act_value">1</span>
-</div>
 </div>
 
 </div>
@@ -264,28 +231,13 @@ Rainy
 
 <script>
 
-const satSlider = document.getElementById("sat_range");
-const actSlider = document.getElementById("act_range");
-
-const satValue = document.getElementById("sat_value");
-const actValue = document.getElementById("act_value");
-
-satValue.textContent = satSlider.value;
-actValue.textContent = actSlider.value;
-
-satSlider.oninput = () => satValue.textContent = satSlider.value;
-actSlider.oninput = () => actValue.textContent = actSlider.value;
-
 document.getElementById('clear-btn').addEventListener('click', function(e) {
 e.preventDefault();
 document.querySelectorAll('#search-form input').forEach(i => {
 if(i.type !== "range") i.value = '';
 });
-satSlider.value = 400;
-actSlider.value = 1;
-satValue.textContent = 400;
-actValue.textContent = 1;
 document.getElementById('climate_preference').value = 'any';
+closeMajorSuggestions();
 });
 
 const majorInput = document.getElementById('major');
