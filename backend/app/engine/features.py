@@ -31,6 +31,75 @@ def clamp01(x: float) -> float:
     return max(0.0, min(1.0, x))
 
 
+def infer_school_type(school: dict) -> str:
+    """
+    Best-effort school type classification from the fields currently indexed.
+    If a degree-level field is added later, this helper can prefer that instead.
+    """
+    name = (school.get("name") or "").strip().lower()
+    predominant_degree = school.get("predominant_degree")
+    tuition = school.get("tuition_in")
+    ownership = school.get("ownership")
+
+    if predominant_degree is not None:
+        if predominant_degree >= 3:
+            return "four_year"
+        return "sub_bachelor"
+
+    explicit_two_year_patterns = (
+        "community college",
+        "junior college",
+    )
+    if any(pattern in name for pattern in explicit_two_year_patterns):
+        return "sub_bachelor"
+
+    # Fallback heuristic: public, low-tuition schools without "university" in the name
+    # are usually community-college style options in this dataset.
+    if (
+        ownership == 1
+        and tuition is not None
+        and tuition <= 6000
+        and "university" not in name
+    ):
+        return "sub_bachelor"
+
+    return "four_year"
+
+
+def compute_affordability_score(tuition: float, max_budget: float) -> float | None:
+    """
+    Returns 1.0 once tuition is comfortably under budget.
+    This avoids over-rewarding ultra-cheap schools when the user can afford much more.
+    """
+    if tuition is None or max_budget is None or max_budget <= 0:
+        return None
+
+    comfortable_threshold = 0.6 * max_budget
+    if tuition <= comfortable_threshold:
+        return 1.0
+
+    remaining_budget_band = max_budget - comfortable_threshold
+    if remaining_budget_band <= 0:
+        return 1.0 - clamp01(tuition / max_budget)
+
+    return 1.0 - clamp01((tuition - comfortable_threshold) / remaining_budget_band)
+
+
+def compute_school_type_fit(school: dict, user: dict) -> float:
+    """
+    Sub-bachelor schools are useful when budgets are tight, but become less likely
+    to be the intended target as the user's budget rises.
+    """
+    max_budget = user.get("max_budget")
+    school_type = infer_school_type(school)
+
+    if max_budget is None or school_type != "sub_bachelor":
+        return 1.0
+
+    budget_slack = clamp01((max_budget - 12000) / 28000)
+    return 1.0 - (0.65 * budget_slack)
+
+
 def compute_base_score(school: dict, user: dict, w_tuition=0.6, w_distance=0.4):
     """
     Weighted score in [0,1]. Returns None if missing inputs.
@@ -46,10 +115,13 @@ def compute_base_score(school: dict, user: dict, w_tuition=0.6, w_distance=0.4):
     if max_budget <= 0 or max_distance <= 0:
         return None
 
-    # Normalize tuition and distance to [0,1] where 1 is best.
-    tuition_score = 1.0 - clamp01(tuition / max_budget)
+    # Treat "comfortably affordable" as good enough instead of always rewarding the cheapest option.
+    tuition_score = compute_affordability_score(tuition, max_budget)
+    if tuition_score is None:
+        return None
     distance_score = 1.0 - clamp01(dist / max_distance)
-    return (w_tuition * tuition_score) + (w_distance * distance_score)
+    school_type_fit = compute_school_type_fit(school, user)
+    return (0.45 * tuition_score) + (0.40 * distance_score) + (0.15 * school_type_fit)
 
 
 def compute_climate_score(climate: dict, preference: str):
@@ -85,9 +157,18 @@ def compute_score(school: dict, user: dict):
     if climate_pref == "any" or climate_score is None:
         return base_score
 
-    return (0.45 * (1.0 - clamp01(school["tuition_in"] / user["max_budget"]))) + (
-        0.30 * (1.0 - clamp01(school["distance"] / user["max_distance"]))
-    ) + (0.25 * climate_score)
+    tuition_score = compute_affordability_score(school.get("tuition_in"), user.get("max_budget"))
+    if tuition_score is None:
+        return None
+
+    distance_score = 1.0 - clamp01(school["distance"] / user["max_distance"])
+    school_type_fit = compute_school_type_fit(school, user)
+    return (
+        0.35 * tuition_score
+        + 0.25 * distance_score
+        + 0.15 * school_type_fit
+        + 0.25 * climate_score
+    )
 
 
 def build_explanation(school: dict):
